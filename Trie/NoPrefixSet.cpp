@@ -1,6 +1,5 @@
 /* This Solution is for the problem :
-https://www.hackerrank.com/challenges/contacts
-
+https://www.hackerrank.com/challenges/no-prefix-set
 */
 
 
@@ -56,24 +55,57 @@ class Trie {
         if (s == "") {
         	return;
         }
+        root->wordCount++;
         for(int i = 0; i < s.length(); ++i) {
-	        temp->wordCount++;
             if (temp->child[s[i] - 'a'] == NULL) {
                 TrieNode *n = new TrieNode(s[i]);
                 temp->child[s[i] - 'a'] = n;            
                 temp = n;
+			    temp->wordCount++;
                 continue;
             } else {
                 temp = temp->child[s[i] - 'a'];
+  			    temp->wordCount++;
+
             }
         }
         temp->isWord = true;
     }
     
+    /* Returns true if properly inserted. False if already a prefix exists */
+    bool insertStringNoPrefix(string s) {
+        TrieNode *temp = root;
+        bool noPrefix = true;
+        if (s == "") {
+        	return true;
+        }
+        root->wordCount++;
+        for(int i = 0; i < s.length(); ++i) {
+        	if (temp->isWord) {
+        		noPrefix = false;
+        		return noPrefix;
+        	}
+            if (temp->child[s[i] - 'a'] == NULL) {
+                TrieNode *n = new TrieNode(s[i]);
+                temp->child[s[i] - 'a'] = n;            
+                temp = n;
+			    temp->wordCount++;
+			    noPrefix = true;
+                continue;
+            } else {
+                temp = temp->child[s[i] - 'a'];
+  			    temp->wordCount++;
+  			    noPrefix = false;
+            }
+        }
+        temp->isWord = true;
+        
+        return noPrefix;
+    }
     inline TrieNode * traverse(string s) {
         TrieNode *temp = root;
         for(int i = 0; i < s.length(); ++i) {
-            if(temp->child[s[i] - 'a'] == NULL)   {
+            if(temp == NULL || temp->child[s[i] - 'a'] == NULL)   {
                 return NULL;
             } else {
                 temp = temp->child[s[i] - 'a'];
@@ -120,13 +152,13 @@ int main() {
     string op, val;
     Trie tree = Trie();
     while (n--) {
-        cin >> op >> val;
-        if (op == "add") {
-            tree.insertString(val);
-        } else if (op == "find") {
-            cout << tree.findPartial(val) << endl;
+        cin >> val;
+        if (tree.insertStringNoPrefix(val) == false) {
+        	cout << "BAD SET\n" << val << endl;
+        	return 0;
         }
     }
+    cout << "GOOD SET\n";
     return 0;
 }
 
